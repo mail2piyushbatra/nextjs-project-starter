@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A2: The World's Smartest Study Buddy | NEET/JEE Supercharger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        .sidebar.collapsed {
+            width: 70px;
+        }
+        .sidebar.collapsed .nav-text {
+            display: none;
+        }
+        .sidebar.collapsed .logo-text {
+            display: none;
+        }
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+        }
+        .main-content {
+            transition: all 0.3s ease;
+        }
+        .sidebar.collapsed + .main-content {
+            margin-left: 70px;
+        }
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+        }
+        .file-upload input {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 0;
+            padding: 0;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0;
+            filter: alpha(opacity=0);
+        }
+        .chat-message.user {
+            background-color: #e3f2fd;
+            border-radius: 18px 18px 0 18px;
+        }
+        .chat-message.bot {
+            background-color: #f5f5f5;
+            border-radius: 18px 18px 18px 0;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        /* Hide scrollbar for WebKit */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for Firefox */
+        .scrollbar-hide {
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="sidebar bg-white text-gray-800 shadow-lg w-64 fixed h-full flex flex-col z-10 md:translate-x-0 transform -translate-x-full transition-transform duration-200 ease-in-out" style="min-width: 64px;">
+            <div class="p-4 flex items-center border-b border-gray-200">
+                <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-white font-bold">
+                    A²
+                </div>
+                <span class="logo-text ml-3 text-xl font-semibold">Aspiring Aces</span>
+            </div>
+            <div class="flex-1 overflow-y-auto">
+                <div class="p-4">
+                    <div class="mb-6">
+                        <h3 class="text-xs uppercase font-semibold text-gray-500 mb-3">Your Command Center</h3>
+                        <ul>
+                            <li class="mb-2" data-role="student,teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg bg-blue-50 text-blue-600">
+                                    <i class="fas fa-home"></i>
+                                    <span class="nav-text ml-3">Dashboard</span>
+                                </a>
+                            </li>
+                            <li class="mb-2" data-role="admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-users-cog"></i>
+                                    <span class="nav-text ml-3">User Management</span>
+                                </a>
+                            </li>
+                            <li class="mb-2" data-role="teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                    <span class="nav-text ml-3">Class Management</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mb-6">
+                        <h3 class="text-xs uppercase font-semibold text-gray-500 mb-3">⚡ Power Tools</h3>
+                        <ul>
+                            <!-- For All Users -->
+                            <li class="mb-2" data-role="student,teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span class="nav-text ml-3">PYQs (Past Year Questions)</span>
+                                </a>
+                            </li>
+                            <li class="mb-2" data-role="student,teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-list-check"></i>
+                                    <span class="nav-text ml-3">MCQs</span>
+                                </a>
+                            </li>
+                            <li class="mb-2" data-role="student,teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-lightbulb"></i>
+                                    <span class="nav-text ml-3">Trick Generator</span>
+                                </a>
+                            </li>
+                            <li class="mb-2" data-role="student,teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-list-ol"></i>
+                                    <span class="nav-text ml-3">Solution Generator</span>
+                                </a>
+                            </li>
+                            <li class="mb-2" data-role="teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-file-upload"></i>
+                                    <span class="nav-text ml-3">Question Upload</span>
+                                </a>
+                            </li>
+                            <li class="mb-2" data-role="teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-bolt"></i>
+                                    <span class="nav-text ml-3">Test Engine V2</span>
+                                    <span class="ml-auto bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">BETA</span>
+                                </a>
+                            </li>
+                            <li class="mb-2" data-role="admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-chart-pie"></i>
+                                    <span class="nav-text ml-3">Admin Analytics</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mb-6">
+                        <h3 class="text-xs uppercase font-semibold text-gray-500 mb-3">📋 Test & Chapter Navigation</h3>
+                        <ul>
+                            <li class="mb-2" data-role="student,teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-tasks"></i>
+                                    <span class="nav-text ml-3">Test Wise</span>
+                                </a>
+                            </li>
+                            <li class="mb-2" data-role="student,teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-book-open"></i>
+                                    <span class="nav-text ml-3">Chapter Wise</span>
+                                </a>
+                            </li>
+                            <li class="mb-2" data-role="student,teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span class="nav-text ml-3">Mock Tests</span>
+                                </a>
+                            </li>
+                            <li class="mb-2" data-role="student,teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-file-signature"></i>
+                                    <span class="nav-text ml-3">Sample Papers</span>
+                                </a>
+                            </li>
+                            <li class="mb-2" data-role="student,teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-school"></i>
+                                    <span class="nav-text ml-3">CUET Practice</span>
+                                </a>
+                            </li>
+                            <li class="mb-2" data-role="student,teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-book-reader"></i>
+                                    <span class="nav-text ml-3">CBSE Practice</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mb-6">
+                        <h3 class="text-xs uppercase font-semibold text-gray-500 mb-3">🎯 Dream College GPS</h3>
+                        <ul>
+                            <li class="mb-2">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-university"></i>
+                                    <span class="nav-text ml-3">College Predictor</span>
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span class="nav-text ml-3">Cutoff Trends</span>
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-file-export"></i>
+                                    <span class="nav-text ml-3">Bulk College Report</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mb-6">
+                        <h3 class="text-xs uppercase font-semibold text-gray-500 mb-3">📚 Practice Resources</h3>
+                        <ul>
+                            <li class="mb-2" data-role="student,teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-history"></i>
+                                    <span class="nav-text ml-3">PYQs (Previous Year Questions)</span>
+                                </a>
+                            </li>
+                            <li class="mb-2" data-role="student,teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span class="nav-text ml-3">MCQs (Chapter-wise)</span>
+                                </a>
+                            </li>
+                            <li class="mb-2" data-role="student,teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-clock"></i>
+                                    <span class="nav-text ml-3">Mock Tests</span>
+                                </a>
+                            </li>
+                            <li class="mb-2" data-role="student,teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-file-pdf"></i>
+                                    <span class="nav-text ml-3">Sample Papers</span>
+                                </a>
+                            </li>
+                            <li class="mb-2" data-role="student,teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    <span class="nav-text ml-3">CUET Resources</span>
+                                </a>
+                            </li>
+                            <li class="mb-2" data-role="student,teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-school"></i>
+                                    <span class="nav-text ml-3">CBSE Resources</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mb-6">
+                        <h3 class="text-xs uppercase font-semibold text-gray-500 mb-3">📚 Secret Weapon Vault</h3>
+                        <ul>
+                            <li class="mb-2" data-role="teacher,admin">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-users"></i>
+                                    <span class="nav-text ml-3">Student Management</span>
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span class="nav-text ml-3">Notes Generator</span>
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-tasks"></i>
+                                    <span class="nav-text ml-3">DPP/Test Generator</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mb-6">
+                        <h3 class="text-xs uppercase font-semibold text-gray-500 mb-3">🤖 Your AI Wingman</h3>
+                        <ul>
+                            <li class="mb-2">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100 group">
+                                    <i class="fas fa-robot text-purple-600 group-hover:text-purple-800"></i>
+                                    <span class="nav-text ml-3 font-medium">24/7 Study Buddy</span>
+                                    <span class="ml-auto bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">NEW</span>
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="#" class="nav-item flex items-center p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-microphone-alt text-purple-600"></i>
+                                    <span class="nav-text ml-3">Voice Q&A</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium">Admin User</p>
+                        <p class="text-xs text-gray-500">admin@aspiringaces.com</p>
+                    </div>
+                    <button class="ml-auto text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content flex-1 flex flex-col overflow-hidden" style="margin-left: 16rem;">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm z-10">
+                <div class="flex items-center justify-between px-6 py-3">
+                    <div class="flex items-center">
+                        <button id="sidebar-toggle" class="text-gray-500 focus:outline-none mr-4 md:hidden">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h1 class="text-xl font-semibold text-gray-800">Dashboard</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <select id="roleSelect" class="bg-gray-100 border border-gray-300 text-gray-700 py-1 px-2 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <option value="admin">Admin</option>
+                            <option value="teacher">Teacher</option>
+                            <option value="student">Student</option>
+                        </select>
+                        <button class="text-gray-500 hover:text-gray-700 focus:outline-none">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                        <button class="text-gray-500 hover:text-gray-700 focus:outline-none">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
+                <!-- Filters -->
+                <div class="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-wrap gap-4">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">Class</h3>
+                        <div class="flex space-x-2">
+                            <button class="filter-class px-3 py-1 bg-blue-600 text-white rounded-full text-sm">All</button>
+                            <button class="filter-class px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm">11</button>
+                            <button class="filter-class px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm">12</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">Exam</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="filter-exam px-3 py-1 bg-blue-600 text-white rounded-full text-sm">All</button>
+                            <button class="filter-exam px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm">CBSE</button>
+                            <button class="filter-exam px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm">NEET</button>
+                            <button class="filter-exam px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm">JEE Main</button>
+                            <button class="filter-exam px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm">JEE Advanced</button>
+                            <button class="filter-exam px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm">CUET</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Welcome Banner -->
+                <div class="gradient-bg text-white rounded-xl p-6 mb-6 shadow-lg">
+                </div>
+
+                <!-- Spotlight Carousel -->
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <h3 class="text-lg font-semibold mb-4">🔥 Today's Spotlight</h3>
+                    <div id="spotlight-cards" class="flex space-x-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+                        <!-- Cards will be dynamically inserted here -->
+                    </div>
+                </div>
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <h2 class="text-2xl font-bold mb-2">🚀 Level Up Your Prep!</h2>
+                            <p class="opacity-90">Your AI sidekick is ready! Snap a question, unlock pro tricks, or battle test challenges with friends.</p>
+                        </div>
+                        <button class="mt-4 md:mt-0 bg-white text-blue-600 px-6 py-2 rounded-lg font-medium hover:bg-blue-50 transition duration-200 flex items-center">
+                            <i class="fas fa-bolt mr-2"></i> Instant Study Hacks
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <h3 class="text-lg font-semibold mb-4">Performance Overview</h3>
+                    <div class="flex flex-col space-y-6">
+                        <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+                            <div>
+                                <p class="text-gray-500 text-sm font-medium">Total Students</p>
+                                <h3 class="text-2xl font-bold mt-1 counter" data-target="1248">0</h3>
+                                <p class="text-green-500 text-xs mt-1">+12% from last month</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+                            <div>
+                                <p class="text-gray-500 text-sm font-medium">Questions Processed</p>
+                                <h3 class="text-2xl font-bold mt-1">8,742</h3>
+                                <p class="text-green-500 text-xs mt-1">+24% from last month</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                                <i class="fas fa-question-circle"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+                            <div>
+                                <p class="text-gray-500 text-sm font-medium">Tests Generated</p>
+                                <h3 class="text-2xl font-bold mt-1">156</h3>
+                                <p class="text-green-500 text-xs mt-1">+8% from last month</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm font-medium">AI Accuracy</p>
+                                <h3 class="text-2xl font-bold mt-1">92.4%</h3>
+                                <p class="text-green-500 text-xs mt-1">+3.2% improvement</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Voice Query Section -->
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <h3 class="text-lg font-semibold mb-4">🎙️ Voice Q&A</h3>
+                    <div class="flex flex-col items-center">
+                        <button id="voice-record-btn" class="w-20 h-20 rounded-full bg-red-500 text-white flex items-center justify-center mb-4 hover:bg-red-600 transition duration-200">
+                            <i class="fas fa-microphone fa-2x"></i>
+                        </button>
+                        <p class="text-gray-600 mb-2">Click to ask your question</p>
+                        <div id="recording-status" class="text-sm text-gray-500 hidden">
+                            <i class="fas fa-circle text-red-500 animate-pulse mr-1"></i> Recording...
+                        </div>
+                    </div>
+                    <div id="chat-container" class="mt-6 space-y-4 max-h-60 overflow-y-auto p-4 bg-gray-50 rounded-lg hidden">
+                        <!-- Chat messages will appear here -->
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Question Upload Card -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold mb-4">Upload Questions</h3>
+                        <div class="file-upload w-full h-40 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition duration-200">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-500 mb-1">Drag & drop files here</p>
+                            <p class="text-gray-400 text-sm mb-3">or</p>
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition duration-200">
+                                Browse Files
+                            </button>
+                            <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png">
+                        </div>
+                        <div class="mt-4 text-xs text-gray-500">
+                            <p>Supported formats: PDF, JPG, PNG (Max 10MB)</p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Tools Card -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold mb-4">Quick Tools</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button class="flex items-center justify-center p-3 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition duration-200">
+                                <i class="fas fa-lightbulb mr-2"></i>
+                                <span>Generate Trick</span>
+                            </button>
+                            <button class="flex items-center justify-center p-3 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition duration-200">
+                                <i class="fas fa-list-ol mr-2"></i>
+                                <span>Full Solution</span>
+                            </button>
+                            <button class="flex items-center justify-center p-3 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition duration-200">
+                                <i class="fas fa-university mr-2"></i>
+                                <span>College Predict</span>
+                            </button>
+                            <button class="flex items-center justify-center p-3 bg-yellow-50 text-yellow-600 rounded-lg hover:bg-yellow-100 transition duration-200">
+                                <i class="fas fa-file-alt mr-2"></i>
+                                <span>Create Test</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity and Jarvis Assistant -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Recent Activity -->
+                    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold">Recent Activity</h3>
+                            <button class="text-sm text-blue-600 hover:text-blue-800">View All</button>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-3 mt-1">
+                                    <i class="fas fa-file-upload"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">New question uploaded</p>
+                                    <p class="text-sm text-gray-500">Physics - Electrostatics</p>
+                                    <p class="text-xs text-gray-400">2 minutes ago</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    <script>
+        // Spotlight cards data
+        const spotlightCards = [
+            {
+                title: "🧠 Trick of the Day",
+                content: "Master NEET 12 problems with this shortcut!",
+                bgClass: "bg-purple-50",
+                textClass: "text-purple-600",
+                badgeText: "🔥 Trending",
+            },
+            {
+                title: "📝 Test of the Day",
+                content: "Try this JEE mock test for Class 11",
+                bgClass: "bg-blue-50",
+                textClass: "text-blue-600",
+                badgeText: "⏱️ Timed",
+            },
+            {
+                title: "🎓 College Tip",
+                content: "Top JU colleges accepting JEE Advanced scores",
+                bgClass: "bg-green-50",
+                textClass: "text-green-600",
+                badgeText: "🧠 Expert Pick",
+            },
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Filter toggle functionality
+            const classFilters = document.querySelectorAll('.filter-class');
+            const examFilters = document.querySelectorAll('.filter-exam');
+            
+            function handleFilterClick(filters, type) {
+                filters.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        // Remove active state from all buttons of this type
+                        filters.forEach(b => b.classList.remove('bg-blue-600', 'text-white'));
+                        filters.forEach(b => b.classList.add('bg-gray-100', 'hover:bg-gray-200'));
+                        
+                        // Add active state to clicked button
+                        btn.classList.add('bg-blue-600', 'text-white');
+                        btn.classList.remove('bg-gray-100', 'hover:bg-gray-200');
+                        
+                        // Here you would filter content based on selection
+                        console.log(`${type} filter:`, btn.textContent);
+                        // Implement your filtering logic here
+                    });
+                });
+            }
+            
+            handleFilterClick(classFilters, 'class');
+            handleFilterClick(examFilters, 'exam');
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const toggleBtn = document.getElementById('sidebar-toggle');
+            
+            toggleBtn.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                
+                if (sidebar.classList.contains('collapsed')) {
+                    mainContent.style.marginLeft = '70px';
+                } else {
+                    mainContent.style.marginLeft = '16rem';
+                }
+            });
+
+            // Animation for stats counters
+            function animateCounters() {
+                const counters = document.querySelectorAll('.counter');
+                const speed = 200;
+                
+                counters.forEach(counter => {
+                    const target = +counter.getAttribute('data-target');
+                    const count = +counter.innerText;
+                    const increment = target / speed;
+                    
+                    if (count < target) {
+                        counter.innerText = Math.ceil(count + increment);
+                        setTimeout(animateCounters, 1);
+                    } else {
+                        counter.innerText = target.toLocaleString();
+                    }
+                });
+            }
+
+            // Set user role (in real app this would come from backend)
+            const userRole = localStorage.getItem('userRole') || 'admin'; // Can be 'student', 'teacher', or 'admin'
+            
+            // Apply role-based visibility to all menu items
+            function applyRoleVisibility(role) {
+                const items = document.querySelectorAll('#sidebar li[data-role]');
+                items.forEach(item => {
+                    const allowedRoles = item.getAttribute('data-role').split(',');
+                    if (allowedRoles.includes(role)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            }
+            
+            applyRoleVisibility(userRole);
+            document.getElementById('roleSelect').value = userRole;
+            
+            // Role switcher handler
+            document.getElementById('roleSelect').addEventListener('change', function() {
+                const newRole = this.value;
+                localStorage.setItem('userRole', newRole);
+                applyRoleVisibility(newRole);
+                location.reload(); // Refresh to apply all role-based changes
+            });
+
+            // Initialize spotlight cards based on filters
+            function updateSpotlightCards() {
+                const spotlightContainer = document.getElementById('spotlight-cards');
+                const classFilter = document.querySelector('.filter-class.bg-blue-600')?.textContent || 'All';
+                const examFilter = document.querySelector('.filter-exam.bg-blue-600')?.textContent || 'All';
+                
+                // In a real app, this would fetch from an API
+                const cards = [
+                    {
+                        title: "🧠 Trick of the Day",
+                        content: `Master ${examFilter} ${classFilter} problems with this shortcut!`,
+                        bgClass: "bg-purple-50",
+                        textClass: "text-purple-600",
+                        badgeText: "🔥 Trending"
+                    },
+                    {
+                        title: "📝 Test of the Day",
+                        content: `Try this ${examFilter} mock test for Class ${classFilter}`,
+                        bgClass: "bg-blue-50",
+                        textClass: "text-blue-600",
+                        badgeText: "⏱️ Timed"
+                    },
+                    {
+                        title: "🎓 College Tip",
+                        content: `${examFilter} colleges accepting ${classFilter} scores`,
+                        bgClass: "bg-green-50",
+                        textClass: "text-green-600",
+                        badgeText: "🧠 Expert Pick"
+                    }
+                ];
+
+                spotlightContainer.innerHTML = cards.map(card => `
+                    <div class="snap-center min-w-[250px] p-5 rounded-lg relative shadow-md ${card.bgClass} ${card.textClass}">
+                        <div class="absolute top-3 right-3 bg-white ${card.textClass} text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                            ${card.badgeText}
+                        </div>
+                        <h4 class="font-semibold mb-2">${card.title}</h4>
+                        <p class="text-sm">${card.content}</p>
+                        <button class="mt-3 text-xs font-medium ${card.textClass} hover:underline">View Details →</button>
+                    </div>
+                `).join('');
+            }
+
+            // Initialize on load
+            animateCounters();
+            updateSpotlightCards();
+
+            // Update profile badge based on role
+            const roleBadge = document.querySelector('.user-profile-badge');
+            if (roleBadge) {
+                roleBadge.textContent = 
+                    userRole === 'admin' ? 'Administrator' :
+                    userRole === 'teacher' ? 'Educator' : 'Student';
+                roleBadge.className = `text-xs ${ 
+                    userRole === 'admin' ? 'bg-purple-100 text-purple-800' :
+                    userRole === 'teacher' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                } px-2 py-0.5 rounded-full mt-1`;
+            }
+        });
+    </script>
+</body>
+</html>
